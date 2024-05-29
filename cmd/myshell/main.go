@@ -17,6 +17,9 @@ func findExecutable(name string, paths []string) (string, bool) {
             return fullpath, true
         }
     }
+    if _, err := os.Stat(name); err == nil {
+        return name, true
+    }
     return "", false
 }
 
@@ -66,10 +69,6 @@ func main() {
         }
         default:
             path, result := findExecutable(commands[0], strings.Split(os.Getenv("PATH"), ":"))
-            if !result {
-                _, err := os.Stat(commands[0])
-                result = err == nil
-            }
             if result {
                 command := exec.Command(path, commands[1:]...)
                 command.Stdout = os.Stdout
@@ -78,6 +77,8 @@ func main() {
                 if err != nil {
                     fmt.Fprintf(os.Stderr, "%s: command not found\n", commands[0])
                 }
+            } else {
+                fmt.Fprintf(os.Stderr, "%s: command not found\n", commands[0])
             }
         }
     }
