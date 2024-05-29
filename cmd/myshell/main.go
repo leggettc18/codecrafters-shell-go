@@ -4,9 +4,20 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+func findExecutable(name string, paths []string) (string, bool) {
+    for _, path := range paths {
+        fullpath := filepath.Join(path, name)
+        if _, err := os.Stat(fullpath); err == nil {
+            return fullpath, true
+        }
+    }
+    return "", false
+}
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -41,12 +52,17 @@ func main() {
                 }
             }
         case "type":
-            switch commands[1]{
+            switch commands[1] {
             case "exit", "echo", "type":
                 fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", commands[1])
             default:
-                fmt.Fprintf(os.Stdout, "%s not found\n", commands[1])
-            }
+                path, result := findExecutable(commands[1], strings.Split(os.Getenv("PATH"), ":"))
+                if result {
+                    fmt.Fprintf(os.Stdout, "%s is %s\n", commands[1], path)
+                } else {
+                    fmt.Fprintf(os.Stdout, "%s not found\n", commands[1])
+                }
+        }
         default:
             fmt.Fprintf(os.Stdout, "%s: command not found\n", text)
         }
