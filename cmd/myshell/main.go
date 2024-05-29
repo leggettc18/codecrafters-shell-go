@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -20,6 +21,17 @@ func main() {
             fmt.Fprintf(os.Stderr, "error while processing stdin: %s", err)
             os.Exit(1)
         }
-        fmt.Fprintf(os.Stdout, "%s: command not found\n", strings.TrimSpace(text))
+        text = strings.TrimSpace(text)
+        commands := strings.Split(text, " ")
+        switch commands[0] {
+        case "exit":
+            exitCode, err := strconv.Atoi(commands[1])
+            if err != nil {
+                fmt.Fprintf(os.Stderr, "error while parsing exit code: %s", err)
+            }
+            os.Exit(exitCode)
+        default:
+            fmt.Fprintf(os.Stdout, "%s: command not found\n", text)
+        }
     }
 }
