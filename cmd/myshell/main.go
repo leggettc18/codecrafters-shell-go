@@ -40,10 +40,13 @@ func main() {
         commands := strings.Split(text, " ")
         switch commands[0] {
         case "exit":
-            exitCode, err := strconv.Atoi(commands[1])
-            if err != nil {
-                fmt.Fprintf(os.Stderr, "error while parsing exit code: %s\n", err)
-                os.Exit(1)
+            exitCode := 0
+            if len(commands) > 1 {
+                exitCode, err = strconv.Atoi(commands[1])
+                if err != nil {
+                    fmt.Fprintf(os.Stderr, "error while parsing exit code: %s\n", err)
+                    os.Exit(1)
+                }
             }
             os.Exit(exitCode)
         case "echo":
@@ -75,9 +78,22 @@ func main() {
                 fmt.Fprintf(os.Stdout, "%s\n", wd)
             }
         case "cd":
-            err := os.Chdir(commands[1])
-            if err != nil {
-                fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", commands[1])
+            if strings.HasPrefix(commands[1], "~") {
+                homePath, err := os.UserHomeDir()
+                if err != nil {
+                    fmt.Fprintf(os.Stderr, "Error locating home directory: %s\n", err)
+                }
+                remainder, _ := strings.CutPrefix(commands[1], "~")
+                fullPath := homePath + remainder
+                err = os.Chdir(fullPath)
+                if err != nil {
+                    fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", fullPath)
+                }
+            } else {
+                err := os.Chdir(commands[1])
+                if err != nil {
+                    fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", commands[1])
+                }
             }
         default:
             path, result := findExecutable(commands[0], strings.Split(os.Getenv("PATH"), ":"))
