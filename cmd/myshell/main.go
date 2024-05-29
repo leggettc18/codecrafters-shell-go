@@ -30,6 +30,15 @@ func main() {
                 fmt.Fprintf(os.Stderr, "error while parsing exit code: %s", err)
             }
             os.Exit(exitCode)
+        case "echo":
+            for index, command := range commands[1:] {
+                fmt.Fprint(os.Stdout, command)
+                if (index < len(commands) - 2) {
+                    fmt.Fprint(os.Stdout, " ")
+                } else {
+                    fmt.Fprint(os.Stdout, "\n")
+                }
+            }
         default:
             fmt.Fprintf(os.Stdout, "%s: command not found\n", text)
         }
