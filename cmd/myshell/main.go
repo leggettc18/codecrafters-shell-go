@@ -18,7 +18,7 @@ func main() {
 	    // Wait for user input
         text, err := bufio.NewReader(os.Stdin).ReadString('\n')
         if err != nil {
-            fmt.Fprintf(os.Stderr, "error while processing stdin: %s", err)
+            fmt.Fprintf(os.Stderr, "error while processing stdin: %s\n", err)
             os.Exit(1)
         }
         text = strings.TrimSpace(text)
@@ -27,7 +27,8 @@ func main() {
         case "exit":
             exitCode, err := strconv.Atoi(commands[1])
             if err != nil {
-                fmt.Fprintf(os.Stderr, "error while parsing exit code: %s", err)
+                fmt.Fprintf(os.Stderr, "error while parsing exit code: %s\n", err)
+                os.Exit(1)
             }
             os.Exit(exitCode)
         case "echo":
@@ -38,6 +39,13 @@ func main() {
                 } else {
                     fmt.Fprint(os.Stdout, "\n")
                 }
+            }
+        case "type":
+            switch commands[1]{
+            case "exit", "echo", "type":
+                fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", commands[1])
+            default:
+                fmt.Fprintf(os.Stdout, "%s not found\n", commands[1])
             }
         default:
             fmt.Fprintf(os.Stdout, "%s: command not found\n", text)
