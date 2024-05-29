@@ -66,13 +66,18 @@ func main() {
                 } else {
                     fmt.Fprintf(os.Stdout, "%s not found\n", commands[1])
                 }
-        }
+            }
         case "pwd":
             wd, err := os.Getwd()
             if err != nil {
                 fmt.Fprintf(os.Stderr, "Error printing directory: %s\n", err)
             } else {
                 fmt.Fprintf(os.Stdout, "%s\n", wd)
+            }
+        case "cd":
+            err := os.Chdir(commands[1])
+            if err != nil {
+                fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", commands[1])
             }
         default:
             path, result := findExecutable(commands[0], strings.Split(os.Getenv("PATH"), ":"))
